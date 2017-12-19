@@ -11,13 +11,13 @@ object Game24 {
   }
 
   //模式匹配提取
-  def eval(str:String):Int = str match{
+  def eval(str:String):Rational = str match{
     case Bracket(part1,expr,part2) => eval(part1+eval(expr)+part2)
     case Add(expr1,expr2) => eval(expr1)+eval(expr2)
     case Subtract(expr1,expr2) => eval(expr1)-eval(expr2)
     case Multiply(expr1,expr2) => eval(expr1)*eval(expr2)
     case Divide(expr1,expr2) => eval(expr1)/eval(expr2)
-    case _ => str toInt
+    case _ => new Rational(str.toInt,1)
   }
 }
 
@@ -81,4 +81,51 @@ object Bracket{
       case _ => None
     }
   }
+}
+
+//实现精确求值,任何有理数都可以转化为分数
+// 使用分数代替整数
+
+class Rational(n:Int,d:Int){
+
+  require(d!=0)
+
+  private val g = gcd(n,d)
+  val nomer = n/g
+  val denom = d/g
+
+  def +(that:Rational)={
+    new Rational(
+      nomer*that.denom+denom*that.nomer,
+      denom*that.denom
+    )
+  }
+
+  def -(that:Rational)={
+    new Rational(
+      nomer*that.denom-denom*that.nomer,
+      denom*that.denom
+    )
+  }
+
+  def /(that:Rational)={
+    new Rational(
+      nomer*that.denom,
+      denom*that.nomer
+    )
+  }
+
+  def *(that:Rational)={
+    new Rational(
+      nomer*that.nomer,
+      denom*that.denom
+    )
+  }
+
+  private def gcd(a:Int,b:Int):Int={
+    if(b==0) a else gcd(b,a%b)
+  }
+
+  def this(n:Int) = this(n,1)
+  override def toString(): String = nomer +"/" + denom
 }
